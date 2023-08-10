@@ -55,6 +55,7 @@ module tb_eight_bit_adder();
             apply_inputs(in_a[7:0], in_b[7:0], expected[8:0]);
         end
 
+        $display("Passed %0d/%0d tests.", num_passed, num_tests);
         $finish();
     end
 endmodule
