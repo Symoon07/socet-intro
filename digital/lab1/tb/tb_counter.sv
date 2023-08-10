@@ -58,6 +58,8 @@ module tb_counter();
     endtask
 
     initial begin
+        $dumpfile("waveform.fst");
+        $dumpvars;
         rst_n = 1;
         num_tests = 0;
         num_passed = 0;

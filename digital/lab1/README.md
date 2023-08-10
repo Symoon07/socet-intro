@@ -11,6 +11,10 @@ This document is Markdown, and is best shown rendered! Viewing this on GitHub or
 ### Using Verilator
 Verilator is an open-source (System)Verilog simulator. Verilator "synthesizes" your circuit and testbench into a C++ model, that is then compiled in to an executable binary. We have provided the commands to invoke Verilator for you, but you should inspect the provided Makefile and familiarize yourself with using Verilator.
 
+When you build with verilator ("verilate"), it will create a directory called `obj_dir`, which contains the generated C++ code and a Makefile to build it (giving Verilator the --binary or --build flag will make it run 'make' for you). After building, you will get an executable in `obj_dir` named `V<top_module>`, where `<top_module>` is replaced with the name of the top-level module in your design.
+
+Verilator also allows you to use C++ to write a testbench, which can be useful for easing test development and creating more complex testbenches, as you can use the full C++ language and libraries.
+
 ### Using GTKWave
 GTKWave is a waveform viewer program. It is capable of displaying waveforms of many different formats, but the two relevant formats for our purposes are VCD (value-change dump) and FST (fast signal trace). FST is typically faster and contains more useful information, so using it is recommended. To read a waveform file, you can simply run `gtkwave <filename>` in your terminal.
 
@@ -85,6 +89,8 @@ An important concept in SystemVerilog is hierarchical design: using (and re-usin
 First, open the file `src/eight_bit_adder.sv` and fill in the logic for an 8-bit adder. You are welcome to code this however you like (as long as it is *hierarchical* using the full_adder module, not a 1-line assign statement), but following the link in the HINT comment and familiarizing yourself with `generate` blocks will cut down on coding effort substantially.
 
 Next, open the file `tb/tb_eight_bit_adder.sv`. This TB is a little different than the last one, but follows the same basic format. This time, instead of testing all input combinations exhaustively (as there are 2^16 such inputs), we employ some random testing. Your job is to fill in the empty `apply_inputs` task to apply inputs, wait for the input to propagate, and check the outputs. Then, you should add at least 4 directed (e.g. chosen) test cases before the random tests. Try to check cases that you believe to be corner cases.
+
+To run the simulator after building, execute `./Vtb_eight_bit_adder`.
 
 **Task**: Implement the 8-bit ripple-carry adder from instances of `full_adder`, and fill in the tesbench to test the module.
 

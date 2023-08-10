@@ -35,6 +35,8 @@ module tb_eight_bit_adder();
     endtask
 
     initial begin
+        $dumpfile("waveform.fst");
+        $dumpvars;
         a = 0;
         b = 0;
         num_passed = 0;
