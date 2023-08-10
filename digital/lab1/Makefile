@@ -16,3 +16,6 @@ counter: src/counter.sv tb/tb_counter.sv
 clean:
 	rm -rf obj_dir
 	rm -rf waveform.fst
+	rm -f Vcounter
+	rm -f Veight_bit_adder
+	rm -f Vfull_adder

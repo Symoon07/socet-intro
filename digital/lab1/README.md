@@ -144,6 +144,7 @@ module tff(
     end
 endmodule
 ```
+> Hint: `A ^ 1 == !A and A ^ 0 == A`
 
 ## All done!
 Make sure to put evidence of lab completion in your design logs! This includes screenshots of relevant portions (waveforms of working modules would be good) and answers to questions in this lab document.
