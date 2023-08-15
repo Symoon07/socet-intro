@@ -1,5 +1,15 @@
 # Digital Design Lab 2
+
+## Contents
+1. [Before you start](#before-you-start)
+2. [Hand-Synthesis of One-hot decoder](#hand-synthesis)
+3. [Divisible-by-5 FSM](#divisible-by-5-fsm)
+4. [Memory Copier](#memory-copier)
+
 ## Before you start
+
+### Optional: NAND Game
+[NAND Game](https://www.nandgame.com/) is a pretty good browser-based logic-gate game that walks you through the layers of abstraction going from NAND gates to a functional (albeit simplistic) microprocessor. This isn't required, but it is a fun way to see how things are built up from gates.
 
 ### Important terminology
 - Serial Data: Data that is sent 1 (or a few) bits at a time, instead of being presented all at once in parallel. 
@@ -32,8 +42,47 @@ endinterface
 
 This interface defines communication between a requester (e.g. a CPU) and a responder (e.g. memory). The two modports match these roles, a requester would have the `request` modport, and the responder would have the `response` modport. The signals can be accessed using `.` syntax like a struct.
 
+## Hand-Synthesis
+As a refresher, the process of converting a higher-level description into a circuit *netlist*, or gate-level representation, is called *synthesis*. As a first exercise, try synthesizing the following SystemVerilog description into gates by hand. You can use any of the basic gates (AND, OR, NOT, NAND, NOR) with any number of inputs (e.g. 3-input AND) in addition to 2-input XOR and XNOR, 2:1 muxes, N-bit full adders, and D Flip-Flops with active-low reset. Draw a diagram (by hand if you want).
+
+
+
+```sv
+module decoder(
+    input clk,
+    input n_rst,
+    input [1:0] address,
+    output logic [3:0] select
+);
+
+    logic [1:0] addr_ff; // address flip-flops
+
+    always_ff @(posedge clk, negedge n_rst) begin
+        if(!n_rst) begin
+            addr_ff <= 0;
+        end else begin
+            addr_ff <= address;
+        end
+    end
+
+    assign select = (4'b1 << addr_ff);
+
+endmodule
+```
+This module describes a small decoder, where the address is stored in D Flip-Flops. The output is a one-hot encoding of the input, i.e. for address N, the Nth bit of output is set to 1. This is summarized in the following table (numbers are binary).
+
+| address | select |
+|:-------:|:------:|
+|   00    |  0001  |
+|   01    |  0010  |
+|   10    |  0100  |
+|   11    |  1000  |
+
+
+**Task**: Draw a gate-level circuit that would implement this. 
+
 ## Divisible-by-5 FSM
-Divisibility of a binary number, send as an MSB-first serial data stream, can be easily recognized by a Finite State Machine. For this part of the lab, you will implement an FSM that detects if a number is divisible by 5, as specified in the image below:
+Divisibility of a binary number, sent as an MSB-first serial data stream, can be easily recognized by a Finite State Machine. For this part of the lab, you will implement an FSM that detects if a number is divisible by 5, as specified in the image below:
 
 ![Divisible-by-5 FSM](./doc/fsm.png)
 
