@@ -144,4 +144,8 @@ The TB for this assignment consists of 3 parts: the TB driver code, the DUT, and
 
 ![TB Setup](./doc/copier_tb.png)
 
-**Task**: Implement the Memory Copier
+**Task**: Implement the Memory Copier by:
+1. Draw an RTL diagram showing the blocks and connections
+2. (optional, but helpful): Draw a waveform diagram (using [Wavedrom](https://wavedrom.com/)) to show a transaction
+3. Fill in the TB test cases
+4. Write the code for the module
