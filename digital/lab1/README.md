@@ -54,7 +54,7 @@ Of course, since we have a fixed-0 input for the Cin of the first full adder, th
 >Note: Adding two binary numbers of bit widths $n$ and $m$ will produce a sum of width $max(n, m) + 1$. If you use fewer bits to represent the sum (e.g. excluding the final carry-out), the value will *overflow*, or wrap back around to the smallest value! For example, with a fixed width of 4 bits:
 >```
 >   1101 (= 13)
->+  1000 (= 8)
+>+ 1000 (= 8)
 >-------
 >   0101 (= 5???)
 >```
