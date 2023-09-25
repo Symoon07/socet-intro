@@ -31,6 +31,7 @@ __attribute__((noinline)) write_mtimecmp(uint32_t value) {
 static void
 __attribute__((noinline)) setup_gpio() {
     gpio->ddr = 0xFFFFFFFF;
+    gpio->data = 0x0;
 }
 
 static void

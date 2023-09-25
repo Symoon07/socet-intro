@@ -171,7 +171,11 @@ The startup code in `sw-tests` sets up the RISC-V core in *vectored* mode, which
 > Note: The above is a simplified description of vectored mode. In more detail: the `mtvec` register is set to the address of a *vector table* in memory, which is a list of jump instructions that will go to different handlers. When an interrupt is received, the CPU jumps to the address `mtvec + interrupt-number x 4`. This address will contain a jump instruction to go to a specific interrupt handler. This is in contrast to direct mode, where the CPU jumps to a single location, and the handler uses a `if`/`switch` statements to handle different interrupt conditions.
 
 The given functions are as follows:
-``
+`read_mtime()` - returns 32b "mtime" value
+`read_mtimecmp()` - returns 32b "mtimecmp" value
+`write_mtimecmp(uint32_t value)` - writes "value" into "mtimecmp"
+`setup_gpio()` - sets up the GPIO in output mode, initializes the output data to 0
+`toggle_gpio()` - flips the value in the GPIO
 
 > Task: Fill in `lab3_3.c` to implement a periodic GPIO blink, and print a message each time. Inclue the value of `mtime` in your message so you can see that it works!
 
