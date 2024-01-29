@@ -1,6 +1,6 @@
 # Digital Design Lab 3
 ## Before Starting
-This lab is primarily a *software* lab, specifically about writing C and RISC-V assembly code. This document assumes some familiarity with C, but none with RISC-V, so don't worry about that! In this first section, we will introduce many of the instructions that you will use. However, the definitive instruction listing can be found at the [RISC-V Website](https://riscv.org/technical/specifications/).
+This lab is primarily a *software* lab, specifically about writing C and RISC-V assembly code. This document assumes some familiarity with C, but none with RISC-V. In this first section, we will introduce many of the instructions that you will use. However, the definitive instruction listing can be found at the [RISC-V Website](https://riscv.org/technical/specifications/).
 
 
 ### Basics of RISC-V
@@ -48,16 +48,20 @@ On the CPU side, there are a number of *Control & Status Registers* (CSRs) that 
 - `mcause`: A unique value that tells you what caused the interrupt
 
 To set up interrupts on a RISC-V CPU, you must set up `mtvec`, `mie`, and `mstatus.mie`. We won't go over the exact process in detail, but if you're interested, take a look at the code in `sw-tests/support`, which sets up interrupts.
+> Note: Exceptions are always active (they do not require an enable bit). This is because most exceptions indicate an error condition that must be dealt with, such as an attempt to access a protected memory range, or executing an illegal instruction.
 
-> Note: RISC-V privilege basics 
+### RISC-V privilege basics 
+
+The '`m`' prefix on these registers indicates the *privilege level* of the CPU. Machine ("M")-mode is the highest privilege, where firmware like a BIOS would run, and gives full access to the hardware. RISC-V also supports 2 more basic modes: Supervisor ("S") mode has less privilege than M-Mode, and is typically where a desktop OS kernel would run. S-mode comes with its own set of CSRs, most notably CSRs that control *virtual memory*. User "U"-mode is where applications can run and has the least privilege.
+
+The privilege mode controls what instructions can be run by the executing code, which CSRs can be accessed, and even which memory regions can be accessed. For example, an application running in U-mode cannot alter the `mtvec` register to redirect interrupts to a new location: only M-mode software can do this, providing a level of security from malicious (or poorly-written) applications.
+
+The privilege mode can be escalated using the `ecall` instruction, which causes a *synchronous* exception that goes to the next-highest mode. Symmetrically, each privilege mode (besides "U") has a special instruction `xret`, where `x` is the current mode (e.g. `mret` for M-mode) that lowers the privilege back to what it was before the last interrupt/exception and resumes the application at the address in the corresponding `xepc` register.
+> It might seem strange that an instruction can escalate privilege mode; after all, if you can just upgrade your privilege, what is being protected?
 >
->The '`m`' prefix on these registers indicates the *privilege level* of the CPU. Machine ("M")-mode is the highest privilege, where firmware like a BIOS would run, and gives full access to the hardware. RISC-V also supports 2 more basic modes: Supervisor "S"-mode has less privilege than M-Mode, is typically where a desktop OS kernel would run, and comes with its own set of CSRs; User "U"-mode is where applications can run and has the least privilege. 
->
-> The privilege mode controls what instructions can be run by the executing code, which CSRs can be accessed, and even which memory regions can be accessed. For example, an application running in U-mode cannot alter the `mtvec` register to redirect interrupts to a new location: only M-mode software can do this, providing a level of security from malicious applications.
->
-> The privilege mode can be escalated using the `ecall` instruction, which causes a *synchronous* exception that goes to the next-highest mode. Symmetrically, each privilege mode (besides "U") has a special instruction `xret`, where `x` is the current mode (e.g. `mret` for M-mode) that lowers the privilege back to what it was before the last interrupt/exception and resumes the application at the address in the corresponding `xepc` register.
->
-> For example, consider an application running in U-mode, and an OS running in S-mode. If the application requires access to a particular resource (e.g. more memory), it must use a *syscall*, which would be implemented by loading some arguments into the registers, then using `ecall` to enter the OS in S-mode. After doing the requested work, the OS will use the `sret` instruction to resume the application in U-mode.
+> However, because `ecall` causes an *exception*, program control is transferred to an exception handler owned by software running in the next-higher privilege mode (e.g. OS, hypervisor, firmware); that is, the attacker can escalate the privilege mdoe, but cannot choose which code runs, and therefore cannot access any protected resource without permission from the OS.
+
+For example, consider an application running in U-mode, and an OS running in S-mode. If the application requires access to a particular resource (e.g. more memory), it must use a *syscall*, which would be implemented by loading some arguments into the registers, then using `ecall` to enter the OS in S-mode. After doing the requested work, the OS will use the `sret` instruction to resume the application in U-mode.
 
 ## Writing code for AFTx07
 For this lab, you will write code that runs on AFTx07 (the latest SoCET chip). The chip will be simulated using Verilator.
@@ -74,9 +78,8 @@ To get started, clone the AFTx07 repository and follow its build instructions. I
 There are many software tests you can run by navigating to the `sw-tests` directory, building them with CMake, and copying the resulting `.bin` files to the proper location.
 
 ### Step 2: ASM
-For this step, create a new file named `lab3_2.S` *in the sw-tests folder* of AFTx07. This file will be picked up by CMake, and built/linked with the proper support code to let you do things like printing values. 
-
-First, copy the following code into your assembly file (fill in your name, or whatever you want to say, in the TODO section)
+The file "step2.S" contains the code listed below. Open it up and fill in the "TODO" part with whatever message you want to
+write.
 ```asm
 .extern print # declare external symbol to be resolved at link time
 
@@ -99,12 +102,7 @@ name:
 .string "" # TODO: Your name here
 ```
 
-Now, do the following from the `sw-tests` directory where you created your assembly file:
-```
-mkdir build && cd build
-cmake3 ..
-make -j 8
-```
+Now, run `make` to build the code. It will produce an executable (ELF) file named "step2", 
 
 You should see a lot of text fly by. This is invoking the compiler `gcc` to build the supporting library code, and your assembly code.
 > Note: The GNU assembler is called `as`. However, `gcc` is smart enough to invoke `as` automatically for assembly files, so you can just compile everything with `gcc` and let it figure out what to do.
@@ -145,22 +143,23 @@ Line 12: `ret`, the `return` instruction. This will return from our `main` funct
 
 Before continuing, let's inspect the output of the compiler. To do this, run the following command to disassemble the code:
 ```
-riscv64-unknown-elf-objdump -d lab3_2.elf
+riscv64-unknown-elf-objdump -d step2.elf
 ```
 You will see a lot of output. This is a *disassembly*, or human-readable printing of the machine code generated after compiling/assembling the input files. One thing of note here is that addresses are also assigned for all the code and data: this was done during the *linking* step. Try to find the code you wrote, which should be under the label `main`. You should be able to see what the linker replaced your `la` instructions with!
 
 > Question: Find our code in the output under the `main` label. What did the `la` instructions become after compiling? Look in the disassembly.
 
-### Step 3: C
+
+### Step 3: Making a syscall interface
+In this section, you will make an interface for syscalls and implement a simple syscall to demonstrate. This will involve mixing C and assembly code together.
+
+Specifically, you will implement a syscall that sets a timer. Normally, unprivileged user code cannot interact with the `mtime` system timer, so we will provide M-mode firmware that sets a timer, and a function to request a timer be set on behalf of the U-mode code.
+
+
+#### Step 3a: Setting a timer in C
 Assembly is, of course, not an easy way for programmers to write code. In this section, we will write C code that runs on AFTx07. We'll be using a timer interrupt to print a message periodically for a certain amount of time. 
 
-To get started, copy the started code provided, `lab3_3.c`, into the `sw-tests` folder. Then, as before:
-```
-cd build
-cmake3 ..
-make -j 8
-```
-> Note: Normally you don't need to re-run CMake, but because it's set up to create a separate executable for each file, we have to re-run it so it can discover the new files.
+The starter code can be found in `step3.c`.
 
 The starter code has some helper functions for dealing with memory-mapped I/O, that you'll see next week. The goal of this lab is to toggle the GPIO periodically, and print a message each time. 
 
@@ -177,7 +176,12 @@ The given functions are as follows:
 `setup_gpio()` - sets up the GPIO in output mode, initializes the output data to 0
 `toggle_gpio()` - flips the value in the GPIO
 
-> Task: Fill in `lab3_3.c` to implement a periodic GPIO blink, and print a message each time. Inclue the value of `mtime` in your message so you can see that it works!
+> Task: Fill in `lab3_3.c` to implement a periodic GPIO blink, and print a message each time. Include the value of `mtime` in your message so you can see that it works!
+
+#### Step 3b: The syscall interface
+For this part, you will create a few functions to implement the syscall. The overall idea is this:
+`timer_set(uint64_t millis) -> syscall(uint32_t num, uint64_t arg) -> exception_handler`. The function `timer_set` is a higher-level API that programmers can use to set a timer for a specified number of milliseconds. The `syscall` function makes a syscall using the `ecall` instruction, providing the syscall number (e.g. what should be done) and an argument in registers `a0` and `a1`.
+Finally, the `exception_handler` function will call an M-mode function that sets the timer.
 
 ### Step 4: RTL Diagram
 For the next lab, you will be designing a small hardware accelerator or peripheral for AFTx07. For this lab's last task, draw the RTL diagram for your chosen design. You are welcome to take one of the following 2 ideas, or propose your own:
