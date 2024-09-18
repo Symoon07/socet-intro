@@ -29,17 +29,12 @@ module fsm(
         end
     end
 
+    // Next state logic
     always_comb begin
-        casez({state, data})
-            {S0, 1'b0}, {S2, 1'b1}: next = S0;
-            {S0, 1'b1}, {S3, 1'b0}: next = S1;
-            {S1, 1'b0}, {S3, 1'b1}: next = S2;
-            {S4, 1'b0}, {S1, 1'b1}: next = S3;
-            {S2, 1'b0}, {S4, 1'b1}: next = S4;
-            default: next = S0;
-        endcase
+        // Your code here
     end
 
-    assign accept = (state == S0);
+    // Output logic
+    // your code here
 
 endmodule
