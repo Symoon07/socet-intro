@@ -13,7 +13,8 @@ module tb_fsm;
 
     logic CLK = 0, nRST;
     logic tb_data, tb_accept;
-    int test_counter;
+    int test_counter;   // counter for how many tests have been generated
+    int current_test;   // set this variable to display the currently-executing test in the waveform window
     TestVector tests[]; // Declare a dynamically sized array to hold the test vectors
 
 
@@ -22,7 +23,6 @@ module tb_fsm;
 
     
     // TODO: Instantiate the FSM module
-
     
     /*
     *  A task acts like a function, or a macro,
@@ -65,15 +65,20 @@ module tb_fsm;
     // Code is provided to check output and to print error messages
     // if an error is found, including the test number,
     // input data, expected value and received value.
-    // Careful: send the data LSB first! (Start from index 0)
+    // Careful: send the data *MSB first!* (Start from index 7)
     // HINT: You can call tasks from other tasks. Use the 'send_bit'
     // task above in a loop to send the whole stream of bits.
     task send_stream(
         TestVector vec
     );
     begin
-        // TODO: Execute the test here
+        // Set 'current_test' to the test vector number
+        // to help tracking in waveforms
+        current_test = vec.test_number;
+        // reset FSM
+        reset();
 
+        // TODO: Execute the test here
 
         #(1); // Delay to ensure sample after output changes
         // Check outputs & display pass/fail messages
@@ -102,10 +107,15 @@ module tb_fsm;
 
     // Start the testbench
     initial begin
-        // Initialize the I/O
+        // Set the output file for trace collection
+        $dumpfile("waveform.fst");
+        $dumpvars(0, tb_fsm);
+
+        // Initialize the TB variables
         tb_data = '0;
         nRST = '1;
         test_counter = 0;
+        current_test = -1;
 
         $timeformat(-9, 2, " ns", 20); // Set formatting for printing time
 
@@ -124,7 +134,9 @@ module tb_fsm;
         // TODO: Run your test cases by looping through the array and calling
         // your "send_stream" task! Don't forget to reset between calls, or
         // your FSM won't start in the correct state.
-
+        for(int i = 0; i < 3; i++) begin
+            send_stream(tests[i]);
+        end
         // Signal simulation to stop, all tests complete
         $finish();
     end
