@@ -1,14 +1,15 @@
 yosys -import
 
-if {[info exists env(INTRO_PDK_LIBERTY)]} {
-    set pdk_path $::env(INTRO_PDK_LIBERTY)
+if {[info exists env(FREEPDK45_LIBERTY)]} {
+    set pdk_path $::env(FREEPDK45_LIBERTY)
+    append pdk_path "/NLDM/NangateOpenCellLibrary_typical.lib"
 } else {
-    puts "Error: Please set environment variable INTRO_PDK_LIBERTY"
+    puts "Error: Please set environment variable FREEPDK45_LIBERTY to the 'Liberty' directory"
     exit 1
 }
 
 if {$pdk_path eq ""} {
-    puts "Error: Please set environment variable INTRO_PDK_LIBERTY"
+    puts "Error: Please set environment variable FREEPDK45_LIBERTY to the 'Liberty' directory"
     exit 1
 }
 
@@ -19,6 +20,7 @@ show -format svg -prefix ./syn/pre_syn
 synth -top fsm
 dfflibmap -liberty $pdk_path
 abc -dff -liberty $pdk_path
+
 clean
 
 tee -o syn/area.rpt stat -liberty $pdk_path

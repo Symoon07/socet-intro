@@ -6,3 +6,4 @@
 **/*.elf
 **/*.bin
 **/syn/**
+**/syn_generic/**

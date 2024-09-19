@@ -2,7 +2,7 @@ VERILATE := verilator
 VERILATE_FLAGS := --binary --trace-fst
 YOSYS   := yosys
 
-.PHONY: clean syn
+.PHONY: clean syn syn_generic
 
 fsm: src/fsm.sv tb/tb_fsm.sv
 	$(VERILATE) $(VERILATE_FLAGS) $^
@@ -12,7 +12,9 @@ syn: src/fsm.sv syn.tcl
 	mkdir -p syn
 	yosys -c syn.tcl | tee syn/yosys_run.log
 
-mapped_sim: syn/fsm.v
+syn_generic:
+	mkdir -p syn_generic
+	yosys -c syn_generic.tcl | tee syn_generic/yosys_run.log
 
 clean:
 	rm -rf obj_dir
