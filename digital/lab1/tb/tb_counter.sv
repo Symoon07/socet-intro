@@ -42,14 +42,14 @@ module tb_counter();
         // number of iterations.
         // @(posedge clk) here advances the simulation to the next
         // rising edge of the clock event.
-        repeat(2) @(posedge clk);
+        repeat(2) @(negedge clk);
         rst_n = 1'b1;
     endtask
 
     task increment_counter(input logic [2:0] expected);
         num_tests += 1;
         @(posedge clk);
-        #(DELAY); // allow some delay for combinational logic to update.
+        #(DELAY) // allow some delay for combinational logic to update.
         if(expected != count) begin
             $display("[Time %0t] FAILED: expected %0d, got %0d\n", $time, expected, count);
         end else begin
@@ -66,7 +66,7 @@ module tb_counter();
         // Reset
         reset();
         // Try to count from 0 to 7
-        for(int i = 0; i < 8; i++) begin
+        for(int i = 1; i < 8; i++) begin
             // i[2:0] is used here to get just the lower 3 bits of i.
             // Without this, we would be trying to connect a 32b signal
             // to a 3b signal. SystemVerilog can infer the correct behavior,
