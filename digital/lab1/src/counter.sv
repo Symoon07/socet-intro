@@ -20,11 +20,11 @@ module counter(
     always_ff @(posedge clk, negedge rst_n) begin
         // If the reset signal is low, that means we're executing this block
         // due to the asynchronous reset condition. Initialize the FFs to
-        // a chosen value.
+        // a chosen value. Hint: In this case, what do we want to reset to?
         if (!rst_n) begin
             count <= 3'd4;
         // Otherwise, we're here because of a clock edge. Perform the normal
-        // update logic.
+        // update logic. Hint: In this case, what are we counting by?
         end else begin
             count <= count + 3'd2;
         end
