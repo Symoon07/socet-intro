@@ -55,6 +55,7 @@ add_custom_command(
     TARGET ${targetname}
     POST_BUILD
     COMMAND riscv64-unknown-elf-objcopy -O binary ${targetname}.elf ${targetname}.bin
+    COMMAND riscv64-unknown-elf-objcopy -O binary ${targetname}.elf meminit.bin
     COMMAND riscv64-unknown-elf-objdump -d ${targetname}.elf > ${targetname}.dump
     COMMENT "Generating binary file and objdump"
 )

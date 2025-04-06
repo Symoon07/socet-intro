@@ -24,7 +24,7 @@ uint32_t input[N] = {
 uint32_t expected[N] = {
     0,  32, 11, 18, 16, 15, 16, 20, 16, 15, 16, 20, 14, 14, 16, 15,
     10, 13, 16, 19, 15, 14, 20, 16, 13, 16, 20, 12, 17, 22, 13, 12,
-    16, 17, 15, 17, 17, 16, 21, 18, 20, 12, 21, 19, 22, 1, 18, 11,
+    16, 17, 15, 17, 17, 16, 21, 18, 20, 12, 21, 19, 22, 1,  18, 11,
     22, 17, 18, 11, 12, 14, 14, 13, 13, 10, 18, 17, 22, 3,  16, 1,
 };
 
@@ -60,6 +60,8 @@ int main() {
     // Enable interrupts, but disable pesky timer interrupts
     asm volatile("csrc mie, %0" : : "r"(0x80));
     interrupt_enable();
+    uint32_t popcnt_fails = 0;
+    uint32_t popcnt_secure_fails = 0;
 
 #if STEP1
     asmHello();
@@ -67,7 +69,6 @@ int main() {
 
 #if STEP2
     print("Testing popcnt:\n");
-    uint32_t popcnt_fails = 0;
     for (int i = 0; i < N; i++) {
         uint32_t start_cycles = get_mcycle();
         uint8_t output = popcnt(input[i]);
@@ -92,11 +93,12 @@ int main() {
             print("\n");
         }
     }
+#endif
 
+#if STEP3
     print("\n");
 
     print("Testing popcnt_secure:\n");
-    uint32_t popcnt_secure_fails = 0;
     for (int i = 0; i < N; i++) {
         uint32_t start_cycles = get_mcycle();
         uint8_t output = popcnt_secure(input[i]);
@@ -121,9 +123,6 @@ int main() {
             print("\n");
         }
     }
-#endif
-
-#if STEP3
 #endif
 
     return popcnt_fails + popcnt_secure_fails;
