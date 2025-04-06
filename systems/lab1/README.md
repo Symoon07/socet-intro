@@ -1,4 +1,4 @@
-# Digital Design Lab 3
+# Systems Lab 1
 ## Before Starting
 This lab is primarily a *software* lab, specifically about writing C and RISC-V assembly code. This document assumes some familiarity with C, but none with RISC-V. In this first section, we will introduce many of the instructions that you will use. However, the definitive instruction listing can be found at the [RISC-V Website](https://riscv.org/technical/specifications/).
 
@@ -66,25 +66,23 @@ For example, consider an application running in U-mode, and an OS running in S-m
 ## Writing code for AFTx07
 For this lab, you will write code that runs on AFTx07 (the latest SoCET chip). The chip will be simulated using Verilator.
 
-
 ### Step 1: Set up AFTx07
 To get started, clone the AFTx07 repository and follow its build instructions. If your account is set up properly, this should be as simple as:
 
 1. Set up the Python virtual environment according to the README.md
 2. Run `setup.sh` to download the needed libraries and submodules
 3. Run `build.sh` to build the Verilator simulation
-4. Run `./aft_out/sim-verilator/Vaftx07` to run the simulation. Note that the simulation needs a file named `meminit.bin` in the directory `AFTx07` (e.g. top-level directory of the repository) containing the program to run (initial RAM contents). If you don't provide that, it will just run forever doing nothing, since the RAM is full of 0s.
+4. Run `./aft_out/sim-verilator/Vaftx07` to run the simulation. Note that the simulation needs a file named `meminit.bin` in the current directory. If you don't provide that, it will just run forever doing nothing, since the RAM is full of 0s.
 
 There are many software tests you can run by navigating to the `sw-tests` directory, building them with CMake, and copying the resulting `.bin` files to the proper location.
 
-### Step 2: ASM
-The file "step2.S" contains the code listed below. Open it up and fill in the "TODO" part with whatever message you want to
-write.
+### Step 2: Simple Assembly
+The file "src/asmHello.S" contains the code listed below. Open it up and fill in the "TODO" part with whatever message you want to write.
 ```asm
 .extern print # declare external symbol to be resolved at link time
 
-.global main
-main:
+.global asmHello
+asmHello:
     addi sp, sp, -16
     sw ra, 0(sp)
     la t0, message
@@ -109,9 +107,9 @@ You should see a lot of text fly by. This is invoking the compiler `gcc` to buil
 
 > All of the gcc/binutils programs for our RISC-V toolchain (programs that let you compile and inspect binaries) are prefixed by `riscv64-unknown-elf-`, e.g. `riscv64-unknown-elf-gcc`. This prefix indicates the *cross compiler toolchain* being used; that is, we're compiling code not for our native machine, but for a RISC-V machine. You can read more about these "target triples" on the [OSDev website](https://wiki.osdev.org/Target_Triplet).
 
-After the `make` command completes, you should see a number of build artifacts. The `.elf` files are the binaries in ELF format, which is the default output of the compiler. The `.bin` files also are program binaries, but they contain *only* the program data as raw binary. We have AFTx07 set up to use raw binaries right now, which is why this is needed. Make sure that the files `lab3_2.elf` and `lab3_2.bin` are in this directory.
+After the `make` command completes, you should see a number of build artifacts. The `.elf` files are the binaries in ELF format, which is the default output of the compiler. This is the executable format for Linux machines (similar to EXE files on Windows and Mach-O for macOS). The `.bin` files also are program binaries, but they contain *only* the program data as raw binary. We have AFTx07 set up to use raw binaries right now, which is why this is needed. Make sure that the files `lab3_2.elf` and `lab3_2.bin` are in this directory.
 
-Next, copy `lab3_2.bin` to the top-level `AFTx07` directory, and rename it to `meminit.bin`. Navigate back to the `AFTx07` directory, and run the simulation with: `./aft_out/sim-verilator/Vaftx07`. You should see your message printed to the screen!
+Next, rename `lab3_2.bin` to `meminit.bin`. Run the simulation with: `$AFTDEV_ROOT/aft_out/sim-verilator/Vaftx07` where `$AFTDEV_ROOT` is the top-level directory of AFT-dev. You should see your message printed to the screen!
 
 > Note: You'll see some other prints. There is a small "kernel" that runs before your `main` code runs, which will set up some basic things on the system, and also provides the `print` function you used.
 
@@ -147,8 +145,7 @@ riscv64-unknown-elf-objdump -d step2.elf
 ```
 You will see a lot of output. This is a *disassembly*, or human-readable printing of the machine code generated after compiling/assembling the input files. One thing of note here is that addresses are also assigned for all the code and data: this was done during the *linking* step. Try to find the code you wrote, which should be under the label `main`. You should be able to see what the linker replaced your `la` instructions with!
 
-> Question: Find our code in the output under the `main` label. What did the `la` instructions become after compiling? Look in the disassembly.
-
+> Question 1: Find our code in the output under the `main` label. What did the `la` instructions become after compiling? Look in the disassembly.
 
 ### Step 3: Making a syscall interface
 In this section, you will make an interface for syscalls and implement a simple syscall to demonstrate. This will involve mixing C and assembly code together.
