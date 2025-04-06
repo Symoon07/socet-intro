@@ -4,8 +4,8 @@
 asmHello:
     addi sp, sp, -16
     sw ra, 0(sp)
-    la t0, message
-    la t1, name
+    la a0, message
+    la a1, name
     call print
     lw ra, 0(sp)
     li a0, 0
