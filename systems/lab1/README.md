@@ -1,7 +1,6 @@
-# Digital Design Lab 3
+# Systems Lab 1
 ## Before Starting
 This lab is primarily a *software* lab, specifically about writing C and RISC-V assembly code. This document assumes some familiarity with C, but none with RISC-V. In this first section, we will introduce many of the instructions that you will use. However, the definitive instruction listing can be found at the [RISC-V Website](https://riscv.org/technical/specifications/).
-
 
 ### Basics of RISC-V
 RISC-V is an open standard for an instruction set architecture (ISA). RISC-V has 32 general-purpose registers, and register 0 (x0, zero) is hard-wired to 0. The registers can be referred to as xN, for the Nth register, or by their [ABI Names](https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf). For these examples, we will use the ABI names, since they are more descriptive and easier to read.
@@ -63,32 +62,49 @@ The privilege mode can be escalated using the `ecall` instruction, which causes 
 
 For example, consider an application running in U-mode, and an OS running in S-mode. If the application requires access to a particular resource (e.g. more memory), it must use a *syscall*, which would be implemented by loading some arguments into the registers, then using `ecall` to enter the OS in S-mode. After doing the requested work, the OS will use the `sret` instruction to resume the application in U-mode.
 
-## Writing code for AFTx07
-For this lab, you will write code that runs on AFTx07 (the latest SoCET chip). The chip will be simulated using Verilator.
+## Writing code for AFT-dev
+For this lab, you will write code that runs on AFT-dev (the latest SoCET chip). The chip will be simulated using Verilator.
 
+### Step 1: Set up AFT-dev
+To get started, clone the AFT-dev repository and follow its build instructions. If your account is set up properly, this should be as simple as:
 
-### Step 1: Set up AFTx07
-To get started, clone the AFTx07 repository and follow its build instructions. If your account is set up properly, this should be as simple as:
-
-1. Set up the Python virtual environment according to the README.md
+1. Run `git submodule update --init` to pull in the `AFT-dev` (the chip) and `aft-femtokernel` (a small runtime kernel) submodules
+2. Change directory into the AFT-dev folder by running `cd AFT-dev`
 2. Run `setup.sh` to download the needed libraries and submodules
 3. Run `build.sh` to build the Verilator simulation
-4. Run `./aft_out/sim-verilator/Vaftx07` to run the simulation. Note that the simulation needs a file named `meminit.bin` in the directory `AFTx07` (e.g. top-level directory of the repository) containing the program to run (initial RAM contents). If you don't provide that, it will just run forever doing nothing, since the RAM is full of 0s.
+4. Run `./aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07` to run the simulation. Note that the simulation needs a file named `meminit.bin` in the current directory. If you don't provide that, it will just run forever doing nothing, since the RAM is full of 0s.
 
-There are many software tests you can run by navigating to the `sw-tests` directory, building them with CMake, and copying the resulting `.bin` files to the proper location.
+There are many software tests you can run by navigating to the `sw-tests`
+directory, building them with CMake, and copying the resulting `.bin` files
+to the proper location. The steps to build something with CMake are shown below:
 
-### Step 2: ASM
-The file "step2.S" contains the code listed below. Open it up and fill in the "TODO" part with whatever message you want to
-write.
+1. Run `cd sw-tests` to navigate to the directory with the CMakeLists.txt file (this is the build script for CMake projects)
+2. Create and enter a build directory: `mkdir build && cd build`
+3. Run CMake to generate the build files: `cmake3 ..`
+4. Run the generated Makefile to build the project: `make`
+5. Copy a ".bin" file to "meminit.bin": for example, `cp print_test.bin meminit.bin`
+6. Run the simulator by running `../aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07`
+
+### Step 2: Setup CMake
+
+Next, we'll need to set up the build system for the code you'll be writing in this lab (make sure you're in the `systems/lab1` folder):
+
+1. Create and enter a build directory: `mkdir build && cd build`
+2. Run CMake to generate the build files: `cmake3 ..`
+3. Run the generated Makefile to build the project: `make`
+
+### Step 3: Simple Assembly
+The file "src/asmHello.S" contains the code listed below. Open it up and fill in the "TODO" part with whatever message you want to write.
+
 ```asm
 .extern print # declare external symbol to be resolved at link time
 
-.global main
-main:
+.global asmHello
+asmHello:
     addi sp, sp, -16
     sw ra, 0(sp)
-    la t0, message
-    la t1, name
+    la a0, message
+    la a1, name
     call print
     lw ra, 0(sp)
     li a0, 0
@@ -102,16 +118,16 @@ name:
 .string "" # TODO: Your name here
 ```
 
-Now, run `make` to build the code. It will produce an executable (ELF) file named "step2", 
+Now, navigate to the build directory you created earlier and run `make` to build the code. It will produce an executable (ELF) file named `main.elf`.
 
-You should see a lot of text fly by. This is invoking the compiler `gcc` to build the supporting library code, and your assembly code.
+You might see a lot of text fly by. This is invoking the compiler `gcc` to build the supporting library code, and your assembly code.
 > Note: The GNU assembler is called `as`. However, `gcc` is smart enough to invoke `as` automatically for assembly files, so you can just compile everything with `gcc` and let it figure out what to do.
 
 > All of the gcc/binutils programs for our RISC-V toolchain (programs that let you compile and inspect binaries) are prefixed by `riscv64-unknown-elf-`, e.g. `riscv64-unknown-elf-gcc`. This prefix indicates the *cross compiler toolchain* being used; that is, we're compiling code not for our native machine, but for a RISC-V machine. You can read more about these "target triples" on the [OSDev website](https://wiki.osdev.org/Target_Triplet).
 
-After the `make` command completes, you should see a number of build artifacts. The `.elf` files are the binaries in ELF format, which is the default output of the compiler. The `.bin` files also are program binaries, but they contain *only* the program data as raw binary. We have AFTx07 set up to use raw binaries right now, which is why this is needed. Make sure that the files `lab3_2.elf` and `lab3_2.bin` are in this directory.
+After the `make` command completes, you should see a number of build artifacts. The `.elf` files are the binaries in ELF format, which is the default output of the compiler. This is the executable format for Linux machines (similar to EXE files on Windows and Mach-O for macOS). The `.bin` files also are program binaries, but they contain *only* the program data as raw binary (ELF files contain other metadata about your program). We have AFT-dev set up to use raw binaries right now, which is why this is needed. Make sure that you can see the files `main.elf`, `main.bin`, and `meminit.bin` in this directory.
 
-Next, copy `lab3_2.bin` to the top-level `AFTx07` directory, and rename it to `meminit.bin`. Navigate back to the `AFTx07` directory, and run the simulation with: `./aft_out/sim-verilator/Vaftx07`. You should see your message printed to the screen!
+Run the simulation with: `../AFT-dev/aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07`. You should see your message printed to the screen!
 
 > Note: You'll see some other prints. There is a small "kernel" that runs before your `main` code runs, which will set up some basic things on the system, and also provides the `print` function you used.
 
@@ -119,15 +135,15 @@ Let's look at what this did step-by-step.
 
 Line 1: `.extern print` declares an external symbol named "print". This is just like the C statement `extern void print(const char *, ...)`, only in ASM, we don't have that type information. This line declares a symbol named `print` which is external to this file, so the linker knows to go look for this symbol elsewhere.
 
-Line 2-3: `.global main` indicates that the symbol `main` should be made globally available; that is, if another piece of code wants to reference `main`, the linker will use this symbol. If you don't mark something as `.global`, other files cannot see that symbol. This is like if assembly labels were `static` variables/functions in C. 
+Line 2-3: `.global asmHello` indicates that the symbol `asmHello` should be made globally available; that is, if another piece of code wants to reference `asmHello`, the linker will use this symbol. If you don't mark something as `.global`, other files cannot see that symbol. This is like if assembly labels were `static` variables/functions in C. 
 
-Line 4-5: This part uses `addi sp, sp, -16` to allocate space on the stack (by moving the stack pointer), then saves the value of `ra` onto the stack using `sw ra, 0(sp)`. We plan on modifying `ra` later (thus losing our return address), so we need to save it now.
+Line 4-5: This part uses `addi sp, sp, -16` to allocate space on the stack (by moving the stack pointer), then saves the value of `ra` (the return address) onto the stack using `sw ra, 0(sp)`. We plan on modifying `ra` later (thus losing our return address), so we need to save it now.
 
-Line 6-7: The `la rX, symbol` instruction loads the address of a symbol into a register. These lines set `a0` and `a1` to the addresses of our message and name strings, respectively. (To be clear: `t0` and `t1` hold *pointers*, e.g. `char *` in C).
-> Note: `la` is a so-called "pseudo-instruction", that was added to make programmer's lives easier. `la rX, symbol` loads the effective address of a given symbol into the register `rX`. Some architectures have the ability to load full-sized constants into registers (e.g. x86-64), but on RISC-V, this often must be done with a multi-instruction sequence. For example, to load the constant `0x80000001` into a register in RISC-V, you might do:
+Line 6-7: The `la xN, symbol` instruction loads the address of a symbol into a register. These lines set `a0` and `a1` to the addresses of our message and name strings, respectively. (To be clear: `a0` and `a1` hold *pointers*, e.g. `char *` in C).
+> Note: `la` is a so-called "pseudo-instruction", that was added to make programmer's lives easier. `la xN, symbol` loads the effective address of a given symbol into the register `xN`. Some architectures have the ability to load full-sized constants into registers (e.g. x86-64), but on RISC-V, this often must be done with a multi-instruction sequence. For example, to load the constant `0x80000001` into a register in RISC-V, you might do:
 > ```
-> lui r1, 0x80000 # "load-upper-immediate", set upper 20b of r1 to 0x80000, lower 12 to 0
-> addi r1, r1, 1  # "add immediate", add "1" to the contents of r1
+> lui x1, 0x80000 # "load-upper-immediate", set upper 20b of x1 to 0x80000, lower 12 to 0
+> addi x1, x1, 1  # "add immediate", add "1" to the contents of x1
 > ```
 > However, if we only wanted to load `0x80000000`, it could be done with a single `lui`. RISC-V assembly has a pseudo-instruction `li` (load immediate), that the assembler will expand to the shortest possible sequence of instructions to build the immediate value. However, for symbols, we don't know their value until link time, so we cannot use `li`. The `la` instruction, on the other hand, defers the instruction selection for building this constant to link-time. Based on where the address is located in memory, the linker can choose whether it needs 2 instructions, or only a single instruction to build the desired constant value. The linker can also shuffle things around to optimize this process by locating things such that they can be reached with a single instruction from where they are used. This process is called *linker relaxation*. If you are interested, there's a [great blog post](https://www.sifive.com/blog/all-aboard-part-3-linker-relaxation-in-riscv-toolchain) from SiFive talking about this process.
 
@@ -138,53 +154,85 @@ Line 9: `li a0, 0` loads 0 into the a0 register. This is setting up the return v
 
 Line 10-11: This section restores our old value of `ra`, in preparation to return from `main`. First, we reload `ra` with `lw ra, 0(sp)`. Then, we de-allocate our stack space by bumping the stack pointer back up, using `addi sp, sp, 16`.
 
-Line 12: `ret`, the `return` instruction. This will return from our `main` function. Note that this is where execution resumes after the `print` function call returns.
+Line 12: `ret`, the `return` instruction. This will return from our `asmHello` function. Note that this is where execution resumes after the `print` function call returns.
 > Note: `ret` is another pseudo-instruction, that expands to `jr ra`. `jr` (Jump-Register) sets the program counter to the contents of the specified register. Here it uses `ra`, the ABI return address register.
 
 Before continuing, let's inspect the output of the compiler. To do this, run the following command to disassemble the code:
 ```
-riscv64-unknown-elf-objdump -d step2.elf
+riscv64-unknown-elf-objdump -d main.elf | less
 ```
-You will see a lot of output. This is a *disassembly*, or human-readable printing of the machine code generated after compiling/assembling the input files. One thing of note here is that addresses are also assigned for all the code and data: this was done during the *linking* step. Try to find the code you wrote, which should be under the label `main`. You should be able to see what the linker replaced your `la` instructions with!
+You will see a lot of output and can scroll up and down using "f" and "b" respectively. You can also use the arrow keys. This is a *disassembly*, or human-readable printing of the machine code generated after compiling/assembling the input files. One thing of note here is that addresses are also assigned for all the code and data: this was done during the *linking* step. Try to find the code you wrote, which should be under the label `asmHello`. You should be able to see what the linker replaced your `la` instructions with!
 
-> Question: Find our code in the output under the `main` label. What did the `la` instructions become after compiling? Look in the disassembly.
+> Question 1: Find our code in the output under the `asmHello` label. What did the `la` instructions become after compiling? Look in the disassembly.
 
+### Step 4: More advanced assembly
 
-### Step 3: Making a syscall interface
-In this section, you will make an interface for syscalls and implement a simple syscall to demonstrate. This will involve mixing C and assembly code together.
+Next we'll write some more advanced assembly to calculate the "population count" (or the number of bits set) in a 32 bit integer. An intuitive implementation of this algorithm is to loop through each bit of the integer and increment an accumulator if the bit is equal to 1.
 
-Specifically, you will implement a syscall that sets a timer. Normally, unprivileged user code cannot interact with the `mtime` system timer, so we will provide M-mode firmware that sets a timer, and a function to request a timer be set on behalf of the U-mode code.
+Looping in assembly can be slightly unintuitive so let's take a look at an example where we add up all the elements of an `int` array. In C, this is pretty simple:
 
+```c
+uint8_t array[SIZE] = { ... };
+...
+uint32_t sum = 0;
+for (int i = 0; i < SIZE; i++) {
+    sum += array[i];
+}
+```
 
-#### Step 3a: Setting a timer in C
-Assembly is, of course, not an easy way for programmers to write code. In this section, we will write C code that runs on AFTx07. We'll be using a timer interrupt to print a message periodically for a certain amount of time. 
+There are 4 parts to the loop here: the initializer (`int i = 0`), the condition (`i < SIZE`), the update (`i++`), and the body of the loop (`sum += arr[i];`). In asssembly, we can make the same loop by just translating the initializer, update, and body to assembly, and then branching on the inverted condition.
 
-The starter code can be found in `step3.c`.
+```asm
+array:                  // Array definition
+    ...
 
-The starter code has some helper functions for dealing with memory-mapped I/O, that you'll see next week. The goal of this lab is to toggle the GPIO periodically, and print a message each time. 
+...
 
-To do this, you will use the RISC-V `mtime` interrupt. RISC-V cores implementing the privileged instrution set will have a few memory-mapped registers: `mtime`, a 64b register that tracks time, and an `mtimecmp` register per core. `mtime` counts up, and when the value of `mtime` reaches or exceeds `mtimecmp`, a timer interrupt is sent to the corresponding core.
+    la t0, array        // Load address of array into t0
+    li t1, SIZE         // Load SIZE into t1
+    li a0, 0            // Initialize a0 with the initial value of `sum` (this is not the initialization of `i`)
+    li t2, 0            // Initialize t2 with our loop counter (`int i = 0`)
+loop:
+    bge t2, t1, done    // Condition to break out of the loop (`!(i < SIZE)`)
+    add t3, t0, t2      // Index into array using t2
+    lb t4, 0(t3)        // Read the value at array[i]
+    add a0, a0, t4      // Add the value from array[i] to our accumulator
+    addi t2, t2, 1      // Increment our loop counter (`i++`)
+    j loop              // Unconditionally restart the loop
+done:
+    ...
+```
 
-The startup code in `sw-tests` sets up the RISC-V core in *vectored* mode, which allows programmers to set up a different interrupt handler for each interrupt source, and receiving a particular interrupt will cause the core to jump to a corresponding location. The startup code also defines all the interrupt handlers, with *weak* definitions: that is, if the programmer does not re-define the function, it uses a default implementation provided; if the function is re-defined by the programmer, the default implementation is discarded and the re-definition is used instead.
+> Question 2: Why do we need to invert the conditional in assembly?
 
-> Note: The above is a simplified description of vectored mode. In more detail: the `mtvec` register is set to the address of a *vector table* in memory, which is a list of jump instructions that will go to different handlers. When an interrupt is received, the CPU jumps to the address `mtvec + interrupt-number x 4`. This address will contain a jump instruction to go to a specific interrupt handler. This is in contrast to direct mode, where the CPU jumps to a single location, and the handler uses a `if`/`switch` statements to handle different interrupt conditions.
+> Question 3: Where are each of the 4 parts of the loop (in the C version) found in the assembly version (e.g. before loop, at the start of loop, in the middle of loop, at the end of loop)? Convince yourself why this makes sense.
 
-The given functions are as follows:
-`read_mtime()` - returns 32b "mtime" value
-`read_mtimecmp()` - returns 32b "mtimecmp" value
-`write_mtimecmp(uint32_t value)` - writes "value" into "mtimecmp"
-`setup_gpio()` - sets up the GPIO in output mode, initializes the output data to 0
-`toggle_gpio()` - flips the value in the GPIO
+#### Step 4a: Early exit population count
 
-> Task: Fill in `lab3_3.c` to implement a periodic GPIO blink, and print a message each time. Include the value of `mtime` in your message so you can see that it works!
+Fill out the `popcnt` assembly routine in the `src/popcnt.S` and try to exit early if there are no more ones in the input. Remember, the input `a` will be in the `a0` register, and you'll need to return your result in `a0` so the C code can properly use it. Go into the C file (`src/main.c`) and change the macro `STEP2` to equal 1. Recompile the binary (change directory to `build/` and run `make`) and run the simulator to test your `popcnt` funtion with some given inputs and expected outputs. When your function works correctly, it will print out the run time (in cycles) of each test case.
 
-#### Step 3b: The syscall interface
-For this part, you will create a few functions to implement the syscall. The overall idea is this:
-`timer_set(uint64_t millis) -> syscall(uint32_t num, uint64_t arg) -> exception_handler`. The function `timer_set` is a higher-level API that programmers can use to set a timer for a specified number of milliseconds. The `syscall` function makes a syscall using the `ecall` instruction, providing the syscall number (e.g. what should be done) and an argument in registers `a0` and `a1`.
-Finally, the `exception_handler` function will call an M-mode function that sets the timer.
+> Question 4: What is the instruction run time for the input 0x00000000 (the first input)? What about for 0xFFFFFFFF (the second input)? What is the calculated runtime variance of your function?
 
-### Step 4: RTL Diagram
-For the next lab, you will be designing a small hardware accelerator or peripheral for AFTx07. For this lab's last task, draw the RTL diagram for your chosen design. You are welcome to take one of the following 2 ideas, or propose your own:
+> Question 5: Look at line 33-35. What do these lines do? Why are they needed?
+
+#### Step 4b: Timing-safe population count
+
+If you properly implemented the previous function, you should see that the runtime variance is very high. This is due to the fact that we exit early if we detect there are no more 1s to count which improves our performance for a certain class of inputs. However, this performant implementation can leak some information to possible attackers because it's runtime is dependant on a certain characteristic of the input. If the attacker can measure how long the function takes for certain inputs, then they can extract information if the function is called with some protected data. Imagine if a step in processing of a password is to calculate the number of bits set in each letter, the attacker could figure out how many bits of a certain character in a password are set if they know for example, the runtime of an input with 3 bits set. This is called [timing side-channel attack](https://en.wikipedia.org/wiki/Timing_attack) because the timing of a function becomes a side-channel (unintended method of collecting information) which can be used as an attack vector in e.g. hacking. Let's implement a timing-safe version of the same function.
+
+> Question 6: What class of inputs does the regular `popcnt` outperform `popcnt_secure`
+
+> Question 7: What is the invariant you can exploit in `popcnt_secure`? (hint: what is a constant every time you call the function)
+
+Implement the function `popcnt_secure` routine in `src/popcnt.S`. It has the same function signature as the previous routine. Change the `STEP3` macro in the C file to equal 1 and recompile the binary. Rerun the simulation. If the variance of your routine is over 50 cycles, analayze your implementation and improve it so that it is below 50.
+
+> Question 8: What is the instruction run time for the input 0x00000000 (the first input)? What about for 0xFFFFFFFF (the second input)? What is the calculated runtime variance of your function?
+
+> The TA answer using a loop takes around 271 cycles to execute with a variance of 18 cycles. Can you do better?
+
+### Step 5: RTL Diagram
+For the next lab, you will be designing a small hardware accelerator which will do the population count operation in hardware. For this lab's last task, draw the RTL diagram of this peripheral, and how you plan on making it accessible to the core. (Hint: use a bus-based MMIO interface, what registers will you need to make available to the bus)
+
+If you would like to go above and beyond the given task, propose your own peripheral/accelerator to your TAs in office hours (or if you cannot make ANY office hours, then a group Teams message would be acceptable as well) and get approval before creating the RTL diagrams. If the project is deemed sufficiently advanced by your TAs, you may work with other students in your group. Some example ideas are given below:
 
 #### Divisible-by-5 checker
 Re-use the code from lab 2's FSM to perform divisibility checks on a 32b integer. This will require the following registers to be added:
@@ -221,8 +269,8 @@ You should support at least the following operations:
 For the operation register, you will need to assign values to the different operations, e.g. 0 = CLZ, 1 = CTZ, etc. For values that fall outside the legal range, you can return '0'.
 
 #### Other ideas
-- Simple PWM controller with fixed period, configurable duty cycle, enable/disable
-- Hardware Multiply-And-Accumulate (MAC). Computes a = a + (b x c). Have a "reset" that sets a = 0, then perform MAC operations on 2 input data values and accumulate in the "a" register. Make sure to have a reasonable multiplier design! (*not* purely combinational)
+- Hardware Multiply-And-Accumulate (MAC): Computes a = a + (b x c). Have a "reset" that sets a = 0, then perform MAC operations on 2 input data values and accumulate in the "a" register. Make sure to have a reasonable multiplier design! (*not* purely combinational)
+- Morse code generator: Create a bit string of 0s and 1s depending on the series of `char`s that are written to a certain address. You can assume only valid lowercase ASCII characters will be written. A 0 should represent a dot, and a 1 should represent a dash. You should support up to 32 dots or dashes. If you cannot insert a certain letter into your bitstring, the error signal of the bus should go high.
 
 #### Your idea
-If you have an idea you want to try, please reach out! You can do things like create devices with custom interrupts, have I/O pins on the chip, or even create a design that acts as a bus manager!
+If you have an idea you want to try, please talk to your TAs! You can do things like create devices with custom interrupts, have I/O pins on the chip, or even create a design that acts as a bus manager!
