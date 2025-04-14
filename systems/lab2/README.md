@@ -136,7 +136,9 @@ Instructions if you implemented the population count accelerator:
 4. Run AFT-dev and ensure that your accelerator properly works.
 
 > Question 3: What is the variance of your population count accelerator?
+
 > Question 4: What is the speedup of your accelerator vs your software implementations?
+
 > Question 5: See below
 
 Instructions if you implemented a custom accelerator:
