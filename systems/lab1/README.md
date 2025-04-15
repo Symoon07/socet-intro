@@ -69,7 +69,7 @@ For this lab, you will write code that runs on AFT-dev (the latest SoCET chip). 
 To get started, clone the AFT-dev repository and follow its build instructions. If your account is set up properly, this should be as simple as:
 
 1. Run `git submodule update --init` to pull in the `AFT-dev` (the chip) and `aft-femtokernel` (a small runtime kernel) submodules
-2. Change directory into the AFT-dev folder by running `cd AFT-dev`
+2. Change directory into the AFT-dev folder by running `cd ../AFT-dev`
 2. Run `setup.sh` to download the needed libraries and submodules
 3. Run `build.sh` to build the Verilator simulation
 4. Run `./aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07` to run the simulation. Note that the simulation needs a file named `meminit.bin` in the current directory. If you don't provide that, it will just run forever doing nothing, since the RAM is full of 0s.
@@ -127,7 +127,7 @@ You might see a lot of text fly by. This is invoking the compiler `gcc` to build
 
 After the `make` command completes, you should see a number of build artifacts. The `.elf` files are the binaries in ELF format, which is the default output of the compiler. This is the executable format for Linux machines (similar to EXE files on Windows and Mach-O for macOS). The `.bin` files also are program binaries, but they contain *only* the program data as raw binary (ELF files contain other metadata about your program). We have AFT-dev set up to use raw binaries right now, which is why this is needed. Make sure that you can see the files `main.elf`, `main.bin`, and `meminit.bin` in this directory.
 
-Run the simulation with: `../AFT-dev/aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07`. You should see your message printed to the screen!
+Run the simulation with: `../../AFT-dev/aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07`. You should see your message printed to the screen!
 
 > Note: You'll see some other prints. There is a small "kernel" that runs before your `main` code runs, which will set up some basic things on the system, and also provides the `print` function you used.
 

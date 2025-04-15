@@ -45,6 +45,7 @@ file(GLOB APP_SOURCE src/*.c src/*.S)
 set(targetname "main")
 add_executable(${targetname} ${APP_SOURCE} ${LIB_SOURCE} ${LIB_HEADER})
 target_include_directories(${targetname} PUBLIC ../aft-femtokernel/include)
+target_include_directories(${targetname} PUBLIC src)
 set_target_properties(
     ${targetname}
     PROPERTIES
