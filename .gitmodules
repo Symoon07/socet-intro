@@ -1,6 +1,6 @@
 [submodule "systems/lab1/AFT-dev"]
-	path = systems/AFT-dev
+	path = systems/lab1/AFT-dev
 	url = git@github.com:Purdue-SoCET/AFT-dev.git
 [submodule "systems/lab1/aft-femtokernel"]
-	path = systems/aft-femtokernel
+	path = systems/lab1/aft-femtokernel
 	url = git@github.com:Purdue-SoCET/aft-femtokernel.git
