@@ -81,11 +81,12 @@ directory, building them with CMake, and copying the resulting `.bin` files
 to the proper location. The steps to build something with CMake are shown below:
 
 1. Run `cd sw-tests` to navigate to the directory with the CMakeLists.txt file (this is the build script for CMake projects)
-2. Create and enter a build directory: `mkdir build && cd build`
-3. Run CMake to generate the build files: `cmake3 ..`
-4. Run the generated Makefile to build the project: `make`
-5. Copy a ".bin" file to "meminit.bin": for example, `cp print_test.bin meminit.bin`
-6. Run the simulator by running `../../aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07`
+2. Fix the linker script `link.ld` by opening it, and editing the origin of RAM to be `0x8400` with a length of `8K`
+3. Create and enter a build directory: `mkdir build && cd build`
+4. Run CMake to generate the build files: `cmake3 ..`
+5. Run the generated Makefile to build the project: `make`
+6. Copy a ".bin" file to "meminit.bin": for example, `cp print_test.bin meminit.bin`
+7. Run the simulator by running `../../aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07`
 
 ### Step 2: Setup CMake
 
