@@ -85,7 +85,7 @@ to the proper location. The steps to build something with CMake are shown below:
 3. Run CMake to generate the build files: `cmake3 ..`
 4. Run the generated Makefile to build the project: `make`
 5. Copy a ".bin" file to "meminit.bin": for example, `cp print_test.bin meminit.bin`
-6. Run the simulator by running `../aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07`
+6. Run the simulator by running `../../aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07`
 
 ### Step 2: Setup CMake
 
