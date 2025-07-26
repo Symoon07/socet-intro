@@ -79,7 +79,7 @@ an open PDK (and cell library) for a 45nm process. The synthesis script for Yosy
 
 To get started, make sure to load the Yosys and FreePDK45 modules on asicfab:
 ```bash
-$ module load yosys/0.45 freepdk45
+$ module load yosys/0.53 freepdk45
 ```
 The FreePDK45 module will give you a warning; this is fine. The FreePDK45 module exports a couple of environment variables that will be used to load the
 cell library into Yosys.
