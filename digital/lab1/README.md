@@ -62,10 +62,10 @@ Of course, since we have a fixed-0 input for the Cin of the first full adder, th
 
 
 ## Lab Tasks
-### 1. Schematic Full Adder
+### 1. Schematic Ripple Carry Adder
 This is the only time where you'll need to draw gate-level schematics of anything.
 
-**Task**: Using the website [logic.ly](https://logic.ly/demo/), create a 4-bit full adder. You should use the toggle switch (for inputs), the 4-bit digit (for output), a light bulb (for the final carry-out, indicating overflow), and whichever logic gates you wish to implement the full adder.
+**Task**: Using the website [logic.ly](https://logic.ly/demo/), create a 4-bit ripple carry adder (RCA) using full adders. You should use the toggle switch (for inputs), the 4-bit digit (for output), a light bulb (for the final carry-out, indicating overflow), and whichever logic gates you wish to implement the full adder.
 
 ### 2. SystemVerilog Full Adder
 Start by running the testbench for the full adder. This can be done by running:
