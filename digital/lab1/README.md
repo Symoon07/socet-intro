@@ -83,7 +83,7 @@ Now you can view the waveforms. In your terminal, run `gtkwave waveform.fst&` (n
 **Question**: Looking at the code in the `initial` block of `tb_full_adder`, can you recommend a way to make it easier to read/write.
 
 
-### 3. 8-bit Adder
+### 3. 8-bit Ripple Carry Adder
 An important concept in SystemVerilog is hierarchical design: using (and re-using) smaller components to build up a larger system. For this part of the lab, you will construct an 8-bit adder by using the 1-bit adders you debugged in part 2. 
 
 First, open the file `src/eight_bit_adder.sv` and fill in the logic for an 8-bit adder. You are welcome to code this however you like (as long as it is *hierarchical* using the full_adder module, not a 1-line assign statement), but following the link in the HINT comment and familiarizing yourself with `generate` blocks will cut down on coding effort substantially.
