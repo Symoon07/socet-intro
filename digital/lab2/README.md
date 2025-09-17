@@ -57,6 +57,7 @@ This module describes a small decoder, where the address is stored in D Flip-Flo
 
 
 **Task**: Draw a gate-level circuit that would implement this. 
+*Hint* Each output bit is controlled individually, i.e. individual systems control each output bit based on the input bits.
 
 ## Divisible-by-5 FSM
 Divisibility of a binary number, sent as an MSB-first serial data stream, can be easily recognized by a Finite State Machine. For this part of the lab, you will implement an FSM that detects if a number is divisible by 5, as specified in the image below:
