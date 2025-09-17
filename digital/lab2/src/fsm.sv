@@ -20,7 +20,6 @@ module fsm(
 
     state_t state, next;
 
-    // You may find the SystemVerilog 'casez' statement helpful here
     always_ff @(posedge CLK, negedge nRST) begin
         if(!nRST) begin
             state <= S0;
@@ -32,6 +31,7 @@ module fsm(
     // Next state logic
     always_comb begin
         // Your code here
+        // You may find the SystemVerilog 'casez' statement helpful here
     end
 
     // Output logic
