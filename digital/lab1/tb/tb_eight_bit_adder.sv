@@ -28,9 +28,10 @@ module tb_eight_bit_adder();
         // 3. Check that the DUT output is equal to the expected value
         // 4. Print a message if it is wrong
         // 5. Increment "num_passed" if it is right
-        num_tests += 1;
 
         // YOUR CODE HERE
+
+        num_tests += 1;
 
     endtask
 
