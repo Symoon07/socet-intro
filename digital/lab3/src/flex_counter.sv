@@ -1,11 +1,3 @@
-// $Id: $
-// File name:   flex_counter.sv
-// Created:     9/18/2014
-// Author:      Manik Singhal
-// Lab Section: 337-04
-// Version:     1.0  Initial Design Entry
-// Description: flexible n bit counter with defined rollover
-
 module flex_counter #(
     parameter NUM_CNT_BITS = 4
 )( 
