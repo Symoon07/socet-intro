@@ -1,8 +1,8 @@
 
 module fsm(
-    input CLK, nRST,
-    input data,
-    output accept
+    input logic CLK, nRST,
+    input logic data,
+    output logic accept
 );
 
     // Declaring an 'enum' to work with states
