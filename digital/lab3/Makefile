@@ -10,3 +10,4 @@ copier: $(COPIER_SRC) tb/tb_copier.sv
 clean:
 	rm -rf obj_dir
 	rm -f Vtb_copier
+	rm -f waveform.fst

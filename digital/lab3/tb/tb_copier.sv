@@ -20,20 +20,20 @@ module tb_copier;
     always #(10) CLK++;
 
     copier DUT(
-        .CLK,
-        .nRST,
-        .src_addr,
-        .dst_addr,
-        .copy_size,
-        .start,
-        .finished,
+        .CLK(CLK),
+        .nRST(nRST),
+        .src_addr(src_addr),
+        .dst_addr(dst_addr),
+        .copy_size(copy_size),
+        .start(start),
+        .finished(finished),
         // TODO: Add your memory interface here!
     );
     
     memory MEM(
-        .CLK,
-        .nRST,
-        .testif,
+        .CLK(CLK),
+        .nRST(nRST),
+        .testif(testif.response),
         //TODO: Add your memory interface here!
     );
 
@@ -77,16 +77,20 @@ module tb_copier;
         input logic [7:0] src,
         input logic [7:0] size
     );
-    begin
+    begin        
         testif.ren = 1'b0;
         for(int i = 0; i < size; i++) begin
             testif.wen = 1'b1;
-            testif.addr = (src + i);
-            testif.wdata = $random();
+            testif.addr = (src + 8'(i));
+            testif.wdata = $random()[7:0];
+            $display("Writing byte data \'%h\' to address 0x%h", testif.wdata, testif.addr);
+            @(posedge CLK);
+                #(1);
             while(!testif.ready) begin
                 @(posedge CLK);
                 #(1);
             end
+            testif.wen = 1'b0;
         end
     end
     endtask
@@ -113,12 +117,29 @@ module tb_copier;
         input logic [7:0] src, dst, size
     );
     begin
+        
+        // Result checking template
+        logic expected, actual;
+
+        if (expected === actual) begin
+            $display("Passed, byte data \'%h\' at src address 0x%h matches byte data \'%h\' at dst address 0x%h", 
+                        expected, src + 8'(i), actual, dst + 8'(i));
+        end else begin
+            $error("Failed, byte data \'%h\' at src address 0x%h does not match byte data \'%h\' at dst address 0x%h", 
+                        expected, src + 8'(i), actual, dst + 8'(i));
+        end
 
     end
     endtask
 
     initial begin
+        
+        $dumpfile("waveform.fst");
+        $dumpvars(0, tb_copier);
+
         nRST = 1'b1;
+
+        $timeformat(-9, 2, " ns", 20); // Set formatting for printing time
 
         reset_signals();
         reset();
@@ -127,6 +148,7 @@ module tb_copier;
         initialize_memory(8'h0, 8'h8); // Init 8 bytes starting at 0x0
         do_copy(8'h0, 8'hF0, 8'h8); // Test copying 8 bytes from 0x0 to 0xF0
 
+        $finish;
     end
 
 endmodule
