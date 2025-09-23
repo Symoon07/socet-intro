@@ -144,7 +144,7 @@ module tb_copier;
         reset_signals();
         reset();
 
-        // TODO: Make more test cases to run your design!
+        // TODO: Make two more test cases to run your design!
         initialize_memory(8'h0, 8'h8); // Init 8 bytes starting at 0x0
         do_copy(8'h0, 8'hF0, 8'h8); // Test copying 8 bytes from 0x0 to 0xF0
 
