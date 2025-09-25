@@ -5,7 +5,7 @@ module copier(
     input logic [7:0] copy_size,
     input logic start,
     output logic finished,
-    memory_if.source memif
+    memory_if.request memif
 );
 
     // TODO: Use module instantiations + glue logic to implement
