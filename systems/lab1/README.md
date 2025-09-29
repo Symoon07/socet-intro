@@ -68,7 +68,7 @@ For example, consider an application running in U-mode, and an OS running in S-m
 For this lab, you will write code that runs on AFT-dev (the latest SoCET chip). The chip will be simulated using Verilator.
 
 ### Step 1: Set up AFT-dev
-To get started, clone the AFT-dev repository and follow its build instructions. If your account is set up properly, this should be as simple as:
+To get started, clone the AFT-dev (`git clone git@github.com:Purdue-SoCET/AFT-dev.git`) repository and follow its build instructions. If your account is set up properly, this should be as simple as:
 
 1. Run `git submodule update --init` to pull in the `AFT-dev` (the chip) and `aft-femtokernel` (a small runtime kernel) submodules
 2. Change directory into the AFT-dev folder by running `cd ../AFT-dev`
