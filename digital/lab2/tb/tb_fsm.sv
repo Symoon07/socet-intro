@@ -23,6 +23,12 @@ module tb_fsm;
 
     
     // TODO: Instantiate the FSM module
+    fsm DUT(
+        .CLK(CLK),
+        .nRST(nRST),
+        .data(tb_data),
+        .accept(tb_accept)
+    );
     
     /*
     *  A task acts like a function, or a macro,
@@ -79,6 +85,9 @@ module tb_fsm;
         reset();
 
         // TODO: Execute the test here
+        for(int i = 7; i >= 0; i--) begin
+            send_bit(vec.data_stream[i]);
+        end
 
         #(1); // Delay to ensure sample after output changes
         // Check outputs & display pass/fail messages
@@ -102,6 +111,10 @@ module tb_fsm;
         TestVector vec;
 
         test_counter++; // Increment test counter for next call to gen_test
+        vec.test_number = test_counter;
+        vec.data_stream = test_data;
+        vec.expected_output = expected;
+
         return vec;
     endfunction
 
@@ -120,13 +133,17 @@ module tb_fsm;
         $timeformat(-9, 2, " ns", 20); // Set formatting for printing time
 
         // Generate test cases
-        tests = new[3]; // Create dynamically sized array 
+        tests = new[7]; // Create dynamically sized array 
         tests[0] = gen_test(8'd5, 1'b1); // 5 should be divisible by 5!
         tests[1] = gen_test(8'd1, 1'b0); // 1 is not divisible by 5
         tests[2] = gen_test(8'd255, 1'b1); // 255 is divisible by 5
 
         // TODO: Create a couple more test cases. Make sure to change the
         // size of the array on the line with the call to "new[3]"!
+        tests[3] = gen_test(8'd0, 1'b1);
+        tests[4] = gen_test(8'd123, 1'b0);
+        tests[5] = gen_test(8'd99, 1'b0);
+        tests[6] = gen_test(8'd65, 1'b1);
 
         // Run the reset task
         reset();
@@ -134,7 +151,7 @@ module tb_fsm;
         // TODO: Run your test cases by looping through the array and calling
         // your "send_stream" task! Don't forget to reset between calls, or
         // your FSM won't start in the correct state.
-        for(int i = 0; i < 3; i++) begin
+        for(int i = 0; i < tests.size(); i++) begin
             send_stream(tests[i]);
         end
         // Signal simulation to stop, all tests complete
