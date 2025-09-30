@@ -22,11 +22,11 @@ module counter(
         // due to the asynchronous reset condition. Initialize the FFs to
         // a chosen value. Hint: In this case, what do we want to reset to?
         if (!rst_n) begin
-            count <= 3'd4;
+            count <= 3'd0;
         // Otherwise, we're here because of a clock edge. Perform the normal
         // update logic. Hint: In this case, what are we counting by?
         end else begin
-            count <= count + 3'd2;
+            count <= count + 3'd1;
         end
     end
 endmodule

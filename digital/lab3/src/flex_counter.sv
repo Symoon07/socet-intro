@@ -11,7 +11,7 @@ module flex_counter #(
 );
 
     logic [NUM_CNT_BITS - 1 : 0] temp_counter;
-    logic [NUM_CNT_BITS - 1 :0] next_state;
+    logic [NUM_CNT_BITS - 1 : 0] next_state;
     logic rollover_flag_c;
 
     //state_logicister
@@ -32,7 +32,7 @@ module flex_counter #(
     //next _state logic
     always_comb
     begin
-        next_state = (clear) ? ('0) : (!count_enable) ? temp_counter :(temp_counter == rollover_val) ? 1: temp_counter + 1;
+        next_state = (clear) ? ('0) : (!count_enable) ? temp_counter :(temp_counter == rollover_val) ? 1 : temp_counter + 1;
         
         if (next_state == rollover_val)  
         begin

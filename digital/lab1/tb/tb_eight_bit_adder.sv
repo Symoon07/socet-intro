@@ -30,9 +30,15 @@ module tb_eight_bit_adder();
         // 5. Increment "num_passed" if it is right
 
         // YOUR CODE HERE
+        a = in_a;
+        b = in_b;
+        #(DELAY);
 
-        num_tests += 1;
-
+        if(expected != c) begin
+            $display("[Time %0t]: Expected %9b, got %9b\n", $time, expected, c);
+        end else begin
+            num_passed++;
+        end
     endtask
 
     initial begin
@@ -49,6 +55,10 @@ module tb_eight_bit_adder();
         
         // TODO: Pick out some interesting test cases and run them here. What are
         // some corner cases?
+        apply_inputs(0, 0, 0);
+        apply_inputs(255, 255, 510);
+        apply_inputs(1, 1, 2);
+        apply_inputs(67, 21, 88);
 
         // Run 1000 random test cases
         for(int i = 0; i < 1000; i++) begin
