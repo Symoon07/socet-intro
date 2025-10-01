@@ -67,13 +67,13 @@ For example, consider an application running in U-mode, and an OS running in S-m
 ## Writing code for AFT-dev
 For this lab, you will write code that runs on AFT-dev (the latest SoCET chip). The chip will be simulated using Verilator.
 
-### Step 1: Set up AFT-dev
-To get started, clone the AFT-dev (`git clone git@github.com:Purdue-SoCET/AFT-dev.git`) repository and follow its build instructions. If your account is set up properly, this should be as simple as:
+### Part 1: Set up AFT-dev
+To get started, you'll need to clone the AFT-dev repository and follow its build instructions. If your account is set up properly, this should be as simple as:
 
-1. Run `git submodule update --init` to pull in the `AFT-dev` (the chip) and `aft-femtokernel` (a small runtime kernel) submodules
+1. Run `git submodule update --init` inside the intro-socet repository to pull in the `AFT-dev` (the chip) and `aft-femtokernel` (a small runtime kernel) submodules
 2. Change directory into the AFT-dev folder by running `cd ../AFT-dev`
-2. Run `setup.sh` to download the needed libraries and submodules
-3. Run `build.sh` to build the Verilator simulation
+2. Run `./setup.sh` to download the needed libraries and submodules
+3. Run `./build.sh` to build the Verilator simulation
 4. Run `./aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07` to run the simulation. Note that the simulation needs a file named `meminit.bin` in the current directory. If you don't provide that, it will just run forever doing nothing, since the RAM is full of 0s.
 
 There are many software tests you can run by navigating to the `sw-tests`
@@ -88,15 +88,13 @@ to the proper location. The steps to build something with CMake are shown below:
 6. Copy a ".bin" file to "meminit.bin": for example, `cp print_test.bin meminit.bin`
 7. Run the simulator by running `../../aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07`
 
-### Step 2: Setup CMake
-
 Next, we'll need to set up the build system for the code you'll be writing in this lab (make sure you're in the `systems/lab1` folder):
 
 1. Create and enter a build directory: `mkdir build && cd build`
 2. Run CMake to generate the build files: `cmake3 ..`
 3. Run the generated Makefile to build the project: `make`
 
-### Step 3: Simple Assembly
+### Part 2: Simple Assembly
 The file "src/asmHello.S" contains the code listed below. Open it up and fill in the "TODO" part with whatever message you want to write.
 
 ```asm
@@ -168,9 +166,9 @@ You will see a lot of output and can scroll up and down using "f" and "b" respec
 
 > Question 1: Find our code in the output under the `asmHello` label. What did the `la` instructions become after compiling? Look in the disassembly.
 
-### Step 4: More advanced assembly
+### Part 3: POPCNT in Assembly
 
-Next we'll write some more advanced assembly to calculate the "population count" (or the number of bits set) in a 32 bit integer. An intuitive implementation of this algorithm is to loop through each bit of the integer and increment an accumulator if the bit is equal to 1.
+Next we'll write some more advanced assembly to calculate the "population count" (or the number of bits set to '1') in a 32 bit integer. An intuitive implementation of this algorithm is to loop through each bit of the integer and increment an accumulator if the bit is equal to 1.
 
 Looping in assembly can be slightly unintuitive so let's take a look at an example where we add up all the elements of an `int` array. In C, this is pretty simple:
 
@@ -210,7 +208,7 @@ done:
 
 > Question 3: Where are each of the 4 parts of the loop (in the C version) found in the assembly version (e.g. before loop, at the start of loop, in the middle of loop, at the end of loop)? Convince yourself why this makes sense.
 
-#### Step 4a: Early exit population count
+#### Part 3a: Early exit population count
 
 Fill out the `popcnt` assembly routine in the `src/popcnt.S` and try to exit early if there are no more ones in the input. Remember, the input `a` will be in the `a0` register, and you'll need to return your result in `a0` so the C code can properly use it. Go into the C file (`src/main.c`) and change the macro `STEP2` to equal 1. Recompile the binary (change directory to `build/` and run `make`) and run the simulator to test your `popcnt` funtion with some given inputs and expected outputs. When your function works correctly, it will print out the run time (in cycles) of each test case.
 
@@ -218,7 +216,7 @@ Fill out the `popcnt` assembly routine in the `src/popcnt.S` and try to exit ear
 
 > Question 5: Look at line 33-35. What do these lines do? Why are they needed?
 
-#### Step 4b: Timing-safe population count
+#### Part 3b: Timing-safe population count
 
 If you properly implemented the previous function, you should see that the runtime variance is very high. This is due to the fact that we exit early if we detect there are no more 1s to count which improves our performance for a certain class of inputs. However, this performant implementation can leak some information to possible attackers because it's runtime is dependant on a certain characteristic of the input. If the attacker can measure how long the function takes for certain inputs, then they can extract information if the function is called with some protected data. Imagine if a step in processing of a password is to calculate the number of bits set in each letter, the attacker could figure out how many bits of a certain character in a password are set if they know for example, the runtime of an input with 3 bits set. This is called [timing side-channel attack](https://en.wikipedia.org/wiki/Timing_attack) because the timing of a function becomes a side-channel (unintended method of collecting information) which can be used as an attack vector in e.g. hacking. Let's implement a timing-safe version of the same function.
 
@@ -232,7 +230,7 @@ Implement the function `popcnt_secure` routine in `src/popcnt.S`. It has the sam
 
 > The TA answer using a loop takes around 271 cycles to execute with a variance of 18 cycles. Can you do better?
 
-### Step 5: RTL Diagram
+### Part 4: RTL Diagram
 For the next lab, you will be designing a small hardware accelerator which will do the population count operation in hardware. For this lab's last task, draw the RTL diagram of this peripheral, and how you plan on making it accessible to the core. (Hint: use a bus-based MMIO interface, what registers will you need to make available to the bus)
 
 If you would like to go above and beyond the given task, propose your own peripheral/accelerator to your TAs in office hours (or if you cannot make ANY office hours, then a group Teams message would be acceptable as well) and get approval before creating the RTL diagrams. If the project is deemed sufficiently advanced by your TAs, you may work with other students in your group. Some example ideas are given below:
