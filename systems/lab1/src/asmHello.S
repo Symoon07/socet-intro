@@ -16,4 +16,4 @@ asmHello:
 message:
 .string "Hello, world! My name is: %s\n"
 name:
-.string "" # TODO: Your name here
+.string "Simon Xu" # TODO: Your name here
