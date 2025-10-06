@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define STEP1 1
+#define STEP1 0
 #define STEP2 0
-#define STEP3 0
+#define STEP3 1
 
 #define N 64
 
