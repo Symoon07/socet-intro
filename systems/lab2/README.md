@@ -113,14 +113,17 @@ Now that you've learned about MMIO and interacted with existing peripherals, you
 First, decide on the interface for your accelerator. How many control/status/data registers does it need, and what do they do? Common things to provide registers for would be: input data, output data, a "control" register that selects what operation (if multiple) and tells the computation to start, and a status register to show that the computation is done. You will also need to define the offsets. For simplicity, make all your register start at multiples of 4 bytes (this is the size of a word for 32-bit).
 
 1. Navigate to `../AFT-dev/intro_systems_accelerator`. This is where you will implement your peripheral. If this folder does not exist, run `git pull --recurse-submodules` outside of the AFT-dev directory.
-2. Implement your peripheral in `src/intro_systems_accelerator.sv`. You will use `bus_protocol_if.peripheral_vital` interface to interact with the system bus. You can see the definition of that interface in `AFT-dev/bus-components/generic/bus_protocol_if/bus_protocol_if.sv`. This is very similar to the `memory_if` you used earlier in Digital Lab 3.
+2. Implement your peripheral in `src/intro_systems_accelerator.sv`. You will use `bus_protocol_if.peripheral_vital` interface to interact with the system bus. You can see the definition of that interface in `AFT-dev/bus-components/generic/bus_protocol_if/bus_protocol_if.sv`. This is very similar to the `memory_if` you used earlier in Digital Lab 3. There are multiple TODO comments inside the interface file. **You can ignore them.**
 3. Write a few test cases in `tb/tb_intro_systems_accelerator.sv` to test your design. You can build your design using the command `fusesoc --cores-root .. run --build --target sim socet:aft:intro_systems_accelerator`, and you can run it using `./build/socet_aft_intro_systems_accelerator_0.0.1/sim-verilator/Vtb_intro_systems_accelerator`.
 
 ### Step 2: Integrate into AFT-dev
 
 1. All of the boilerplate to integrate your design has already been added into the AFT-dev submodule
-2. Open `../AFT-dev/top_level/src/aftx07_mmap.vh`. What is the `INTRO` module's AHB index? What is it's "BASE" address (hint: look at `AHB_MAP`)? (Mark this as question 2 in your design log)
-3. Build AFT-dev, now with your peripheral implemented, using `build.sh`
+2. Open `../AFT-dev/top_level/src/aftx07_mmap.vh`.
+
+> Question 2: What is the `INTRO` module's AHB index? What is it's "BASE" address (hint: look at `AHB_MAP`)?
+
+3. Build AFT-dev, now with your peripheral implemented, using `build.sh` in the top AFT-dev directory (`/AFT-dev/`).
 
 ### Step 3. Write a C driver for your accelerator
 
@@ -129,20 +132,19 @@ First, decide on the interface for your accelerator. How many control/status/dat
 
 ### Step 4. Benchmark your accelerator
 
-Instructions if you implemented the population count accelerator:
+**Instructions if you implemented the population count accelerator:**
 1. Copy over your `popcnt.S` from the `lab1` folder to the `src` folder.
 2. Fill in `popcnt_hw` in `src/main.c`. This function wraps your accelerator driver to match the interface of the `popcnt` function (`uint8_t popcnt(uint32_t a)`).
-3. Create the build directory using `mkdir build && cd build`, generate the build files using `cmake3 ..`, and build your files using `make`.
-4. Run AFT-dev and ensure that your accelerator properly works.
+3. Create the build directory in your lab 2 directory using `mkdir build && cd build`, generate the build files using `cmake3 ..`, and build your files using `make`.
+4. Run AFT-dev and ensure that your accelerator properly works with `../../AFT-dev/aft_out/socet_aft_aftx07_2.0.0/sim-verilator/Vaftx07`.
+
+**Instructions if you implemented a custom accelerator:**
+1. Change the `POPCNT_ACCELERATOR` macro in `src/main.c` to be 0.
+2. Write some C code that uses your accelerator. Write some software which is equivalent to your accelerator. Test it and determine what the speedup of your accelerator is.
+3. Follow the steps 3 and 4 for the population count accelerator.
 
 > Question 3: What is the variance of your population count accelerator?
 
-> Question 4: What is the speedup of your accelerator vs your software implementations?
-
-> Question 5: See below
-
-Instructions if you implemented a custom accelerator:
-1. Change the `POPCNT_ACCELERATOR` macro in `src/main.c` to be 0.
-2. Write some C code that uses your accelerator. Write some software which is equivalent to your accelerator. Test it and determine what the speedup of your accelerator is.
+> Question 4: What is the speedup of your accelerator vs your software implementations? (Hint: Speedup is t_old / t_new)
 
 > Question 5: What are the benefits of a hardware accelerator? What are some drawbacks?
