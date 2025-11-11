@@ -38,20 +38,21 @@ uint32_t expected[N] = {
 
 uint32_t popcnt_time[N] = {};
 
-extern uint8_t popcnt(uint32_t a);
-extern uint8_t popcnt_secure(uint32_t a);
+extern uint32_t popcnt(uint32_t a);
+extern uint32_t popcnt_secure(uint32_t a);
 
-uint8_t popcnt_hw(uint32_t a) {
-    // TODO:
-    return 0;
+uint32_t popcnt_hw(uint32_t a) {
+    Accelerator *accelerator = initAccelerator();
+    accelerator_write(accelerator, a);
+    return accelerator_read(accelerator);
 }
 
-uint8_t testPopcnt(const char *name, uint8_t (*f)(uint32_t)) {
+uint8_t testPopcnt(const char *name, uint32_t (*f)(uint32_t)) {
     uint8_t fails = 0;
     print("Testing %s:\n", name);
     for (int i = 0; i < N; i++) {
         uint32_t start_cycles = get_mcycle();
-        uint8_t output = f(input[i]);
+        uint32_t output = f(input[i]);
         popcnt_time[i] = get_mcycle() - start_cycles;
         if (output != expected[i]) {
             fails++;
